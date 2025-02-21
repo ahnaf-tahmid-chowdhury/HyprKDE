@@ -1,0 +1,150 @@
+@import "colors.css";
+
+* {
+  font-family: "FiraCode Nerd Font Propo";
+  font-size: 14px;
+  min-height: 0;
+  transition-duration: 0.5s;
+}
+tooltip {
+  background: alpha(@background, 0.9);
+  border-radius: 0.5rem;
+  border: 2px solid alpha(@color7, 0.75);
+}
+tooltip label {
+  padding: 5px 10px;
+  color: @color10;
+}
+#waybar {
+  background: transparent;
+  color: @foreground;
+}
+#workspaces {
+  border-radius: 1rem;
+  margin: 5px 10px;
+  background-color: alpha(@background, 0.75);
+  border: 2px solid alpha(@color7, 0.75);
+}
+#workspaces button {
+  color: @color7;
+  border: none;
+  padding: 0.4rem;
+}
+#workspaces button.active {
+  color: @color4;
+}
+#workspaces button:hover {
+  color: @color3;
+}
+#custom-menu,
+#window,
+#custom-cpu,
+#custom-memory,
+#custom-gpu,
+#custom-network,
+#custom-music,
+#tray,
+#custom-brightness,
+#clock,
+#battery,
+#custom-wallpaper,
+#custom-notifications,
+#pulseaudio,
+#custom-lock,
+#custom-power {
+  background-color: alpha(@background, 0.75);
+  padding: 0.2rem 0.4rem;
+  border: 2px solid alpha(@color7, 0.75);
+  margin: 5px 0;
+}
+#custom-menu {
+  margin-left: 1rem;
+  margin-right: 0.5rem;
+  border-radius: 1rem;
+  color: @color6;
+}
+#window {
+  color: @color5;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+  border-radius: 1rem;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+#waybar.empty #window {
+  background-color: transparent;
+  border: none;
+}
+#custom-music {
+  color: @color14;
+  border-radius: 1rem;
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+#tray {
+  border-radius: 1rem;
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+#tray menu {
+  background: alpha(@background, 0.9);
+  border: 0.2rem solid alpha(@color7, 0.75);
+  color: @color8;
+}
+#tray menu button {
+  color: @color8;
+}
+#custom-cpu,
+#custom-wallpaper {
+  border-radius: 1rem 0px 0px 1rem;
+  border-right: none;
+  margin-left: 0.5rem;
+  padding-left: 10px;
+}
+#custom-cpu,
+#custom-memory,
+#custom-gpu,
+#custom-network {
+  color: @color3;
+}
+#custom-wallpaper,
+#custom-notifications,
+#battery,
+#custom-brightness,
+#pulseaudio,
+#clock {
+  color: @color14;
+}
+#custom-memory,
+#custom-gpu,
+#custom-notifications,
+#battery,
+#custom-brightness,
+#pulseaudio {
+  border-right: none;
+  border-left: none;
+  border-radius: 0px;
+}
+#battery.charging {
+  color: @color2;
+}
+#battery.warning:not(.charging) {
+  color: @color1;
+}
+#custom-network,
+#clock {
+  border-radius: 0 1rem 1rem 0;
+  border-left: none;
+  margin-right: 0.5rem;
+  padding-right: 10px;
+}
+#custom-power {
+  margin-left: 0.5rem;
+  margin-right: 1rem;
+  border-radius: 1rem;
+  color: @color4;
+}

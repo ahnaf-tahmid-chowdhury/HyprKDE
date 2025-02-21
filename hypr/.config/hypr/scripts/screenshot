@@ -1,0 +1,161 @@
+#!/bin/bash
+
+# Get the XDG Pictures directory properly
+SAVE_DIR="$(xdg-user-dir PICTURES)/Screenshots"
+mkdir -p "$SAVE_DIR"
+
+# Generate filename with timestamp
+FILENAME="screenshot_$(date '+%Y-%m-%d_%H-%M-%S').png"
+FILEPATH="$SAVE_DIR/$FILENAME"
+
+# Function to copy screenshot to clipboard
+copy_screenshot() {
+    if command -v wl-copy &>/dev/null; then
+        wl-copy < "$FILEPATH"
+    else
+        notify-send -u normal -p "Screenshot" -i dialog-warning "wl-clipboard is not installed, Skipping clipboard copy."
+        exit 1
+    fi
+}
+
+# Function to open screenshot
+open_screenshot() {
+    if ! xdg-open "$FILEPATH" &>/dev/null; then
+        notify-send -u normal -p "Screenshot" -i dialog-warning "Failed to open screenshot, Check your default image viewer settings."
+    fi
+}
+
+# Function to edit screenshot
+edit_screenshot() {
+    if command -v gimp &>/dev/null; then
+        gimp "$FILEPATH"
+    elif command -v krita &>/dev/null; then
+        krita "$FILEPATH"
+    elif command -v inkscape &>/dev/null; then
+        inkscape "$FILEPATH"
+    elif command -v darktable &>/dev/null; then
+        darktable "$FILEPATH"
+    elif command -v showfoto &>/dev/null; then
+        showfoto "$FILEPATH"
+    elif command -v pinta &>/dev/null; then
+        pinta "$FILEPATH"
+    else
+        notify-send -u normal -p "Screenshot" -i dialog-warning "No compatible image editor found, Install one of: GIMP, Krita, Inkscape, Darktable, Showfoto, Pinta."
+    fi
+}
+
+# Help message
+show_help() {
+    echo "Usage: $0 [option]"
+    echo "Options:"
+    echo "  -f, --fullscreen   Take a fullscreen screenshot"
+    echo "  -s, --select       Take a screenshot of a selected area"
+    echo "  -w, --window       Take a screenshot of the focused window"
+    echo "  -c, --copy         Copy the screenshot to clipboard"
+    echo "  -o, --open         Open the screenshot after capturing"
+    echo "  -e, --edit         Edit the screenshot after capturing"
+    echo "  -h, --help         Show this help message"
+    exit 1
+}
+
+# Check if grim and slurp are installed
+if ! command -v grim &>/dev/null || ! command -v slurp &>/dev/null; then
+    notify-send -u normal -p "Screenshot" -i dialog-error  "Error: grim or slurp is not installed" "Please install grim and slurp."
+    exit 1
+elif pgrep slurp &>/dev/null; then
+    pkill slurp
+fi
+
+# Default mode
+MODE=""
+
+# Parse arguments
+COPY_AFTER=false
+OPEN_AFTER=false
+EDIT_AFTER=false
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -f|--fullscreen)
+            MODE="fullscreen"
+            shift
+            ;;
+        -s|--select)
+            MODE="select"
+            shift
+            ;;
+        -w|--window)
+            MODE="window"
+            shift
+            ;;
+        -c|--copy)
+            COPY_AFTER=true
+            shift
+            ;;
+        -o|--open)
+            OPEN_AFTER=true
+            shift
+            ;;
+        -e|--edit)
+            EDIT_AFTER=true
+            shift
+            ;;
+        -h|--help)
+            show_help
+            ;;
+        *)
+            echo "Unknown option: $1"
+            show_help
+            ;;
+    esac
+done
+
+# Capture screenshot based on mode
+case "$MODE" in
+    fullscreen)
+        grim "$FILEPATH"
+        ;;
+    select)
+        grim -g "$(slurp)" "$FILEPATH"
+        ;;
+    window)
+        # Get active window geometry
+        WIN_INFO=$(hyprctl activewindow)
+        # Parse X, Y from 'at:' line (considering possible extra spaces/tabs)
+        X=$(echo "$WIN_INFO" | grep "at:" | sed 's/.*at: *\([0-9]*\),\([0-9]*\)/\1/')
+        Y=$(echo "$WIN_INFO" | grep "at:" | sed 's/.*at: *\([0-9]*\),\([0-9]*\)/\2/')
+        # Parse Width, Height from 'size:' line
+        WIDTH=$(echo "$WIN_INFO" | grep "size:" | sed 's/.*size: *\([0-9]*\),\([0-9]*\)/\1/')
+        HEIGHT=$(echo "$WIN_INFO" | grep "size:" | sed 's/.*size: *\([0-9]*\),\([0-9]*\)/\2/')
+
+        # Ensure values are valid before running grim
+        if [[ -z "$X" || -z "$Y" || -z "$WIDTH" || -z "$HEIGHT" ]]; then
+            notify-send -u normal -a "Screenshot" -i dialog-error "Error: Could not retrieve active window geometry" "Please open a window and try again."
+            exit 1
+        fi
+
+        # Capture the active window
+        grim -g "${X},${Y} ${WIDTH}x${HEIGHT}" "$FILEPATH"
+        ;;
+    *)
+        echo "No mode selected. Use -h for help."
+        exit 1
+        ;;
+esac
+
+if [ -f "$FILEPATH" ]; then
+
+    # Copy to clipboard if selected
+    if [ "$COPY_AFTER" = true ]; then
+        copy_screenshot
+    fi
+
+    # Open in default viewer if selected
+    if [ "$OPEN_AFTER" = true ]; then
+        open_screenshot
+    fi
+
+    # Open in editor if selected
+    if [ "$EDIT_AFTER" = true ]; then
+        edit_screenshot
+    fi
+fi

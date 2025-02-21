@@ -1,0 +1,164 @@
+add_newline = true
+palette = 'nord'
+command_timeout = 2000
+
+format = """
+[╭](dimmed)$os$directory \
+$git_branch$git_status$fill \
+$character$cmd_duration$time
+[╰ ](dimmed)
+"""
+
+right_format = """
+$all
+"""
+
+[os]
+disabled = false
+format = '[$symbol](inverted)'
+
+[os.symbols]
+AIX = ' '
+Alpaquita = ' '
+AlmaLinux = ' '
+Alpine = ' '
+Amazon = ' '
+Android = ' '
+Arch = ' '
+Artix = ' '
+CachyOS = ' '
+CentOS = ' '
+Debian = ' '
+DragonFly = ' '
+Emscripten = ' '
+EndeavourOS = ' '
+Fedora = ' '
+FreeBSD = ' '
+Garuda = ' '
+Gentoo = ' '
+HardenedBSD = ' '
+Illumos = ' '
+Kali = ' '
+Linux = '󰌽 '
+Mabox = ' '
+Macos = ' '
+Manjaro = ' '
+Mariner = '󰻅 '
+MidnightBSD = ' '
+Mint = ' '
+NetBSD = '󰉀 '
+NixOS = ' '
+Nobara = ' '
+OpenBSD = ' '
+OpenCloudOS = ' '
+openEuler = '󰕦 '
+openSUSE = ' '
+OracleLinux = '▢ '
+Pop = ' '
+Raspbian = ' '
+Redhat = ' '
+RedHatEnterprise = ' '
+RockyLinux = ' '
+Redox = '󰰠 '
+Solus = ' '
+SUSE = ' '
+Ubuntu = ' '
+Ultramarine = '󰠳 '
+Unknown = '󰀨 '
+Uos = ' '
+Void = ' '
+Windows = ' '
+
+[line_break]
+disabled = false
+
+[character]
+success_symbol = '[ ](green)'
+error_symbol = '[ ](red blink)'
+
+[directory]
+style = 'bold'
+format = '[ [$read_only]($read_only_style)$path]($style)'
+truncation_length = 3
+truncate_to_repo = true
+home_symbol = '  ~'
+read_only = ' '
+truncation_symbol = '.../'
+
+[directory.substitutions]
+'Desktop' = '  Desktop'
+'Documents' = '󰈙  Documents'
+'Downloads' = '  Downloads'
+'Music' = '  Music'
+'Photos' = '  Photos'
+'Videos' = '  Videos'
+'Projects' = '  Projects'
+'Public' = '󰇧  Public'
+
+[time]
+disabled = false
+format = '[  $time](inverted)'
+time_format = "%H:%M:%S"
+
+[cmd_duration]
+min_time = 500
+format = '[ 󰔟 $duration](inverted)'
+
+[git_branch]
+style = 'fg:green'
+symbol = ' '
+
+[fill]
+symbol = '.'
+
+[python]
+symbol = ' '
+
+[cmake]
+symbol = ' '
+
+[conda]
+symbol = ' '
+
+[lua]
+symbol = ' '
+
+[nodejs]
+symbol = '󰎙 '
+
+[golang]
+symbol = ' '
+
+[haskell]
+symbol = ' '
+
+[rust]
+symbol = ' '
+
+[ruby]
+symbol = ' '
+
+[package]
+symbol = '󰏗 '
+
+[aws]
+symbol = ' '
+
+[docker_context]
+symbol = ' '
+
+[jobs]
+symbol = ' '
+
+[palettes.nord]
+dark_blue = '#5E81AC'
+blue = '#81A1C1'
+teal = '#88C0D0'
+red = '#BF616A'
+orange = '#D08770'
+green = '#A3BE8C'
+yellow = '#EBCB8B'
+purple = '#B48EAD'
+gray = '#434C5E'
+black = '#2E3440'
+white = '#D8DEE9'

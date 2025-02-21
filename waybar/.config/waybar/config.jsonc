@@ -1,0 +1,171 @@
+[
+    {
+        "layer": "top", // Waybar at top layer
+        "position": "top", // Waybar position (top|bottom|left|right)
+        "reload_style_on_change": true,
+        // "width": 1280, // Waybar width
+        // Choose the order of the modules
+        "modules-left": [
+            "custom/menu",
+            "hyprland/window"
+        ],
+        "modules-center": [
+            "hyprland/workspaces"
+        ],
+        "modules-right": [
+            "custom/cpu",
+            "custom/memory",
+            "custom/gpu",
+            "custom/network",
+            "tray",
+            "custom/wallpaper",
+            "custom/notifications",
+            "pulseaudio",
+            "battery",
+            "clock",
+            "custom/power"
+        ],
+        "hyprland/window": {
+            "format": "{title}",
+            "icon": true,
+            "icon-size": 12
+        },
+        "hyprland/workspaces": {
+            "format": " {icon} ",
+            "format-icons": {
+                "default": "",
+                "active": ""
+            }
+        },
+        "tray": {
+            "icon-size": 21,
+            "spacing": 10
+        },
+        "custom/cpu": {
+            "exec": "~/.config/waybar/scripts/cpu-info.sh",
+            "return-type": "json",
+            "tooltip": true,
+            "interval": 3,
+            "on-click": "konsole -e btop"
+        },
+        "custom/memory": {
+            "exec": "~/.config/waybar/scripts/memory-info.sh",
+            "return-type": "json",
+            "tooltip": true,
+            "interval": 3,
+            "on-click": "konsole -e btop"
+        },
+        "custom/gpu": {
+            "exec": "~/.config/waybar/scripts/nvidia-info.sh",
+            "return-type": "json",
+            "interval": 3,
+            "on-click": "konsole -e nvtop",
+            "on-click-right": "nvidia-settings"
+        },
+        "custom/network": {
+            "exec": "~/.config/waybar/scripts/network-info.sh",
+            "return-type": "json",
+            "tooltip": true,
+            "interval": 3,
+            "on-click": "systemsettings kcm_networkmanagement"
+        },
+        "custom/menu": {
+            "format": "󰣇",
+            "escape": true,
+            "tooltip-format": "Application launcher",
+            "on-click": "~/.config/rofi/scripts/menu.sh",
+            "on-click-right": "systemsettings kcm_about-distro"
+        },
+        "custom/music": {
+            "format": " {}",
+            "escape": true,
+            "interval": 5,
+            "tooltip": false,
+            "exec": "playerctl metadata --format='{{ title }}'",
+            "on-click": "playerctl play-pause",
+            "max-length": 50
+        },
+        "clock": {
+            "timezone": "Asia/Dhaka",
+            "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+            "format-alt": "\ueab0 {:%d/%m/%Y}",
+            "format": "\uf017 {:%H:%M}",
+            "on-click-right": "systemsettings kcm_clock"
+        },
+        //ddcutil version
+        "custom/brightness": {
+            "format": "{icon} {percentage}%",
+            "format-icons": [
+                "\uDB80\uDCDE",
+                "\uDB80\uDCDF",
+                "\uDB80\uDCE0"
+            ],
+            "return-type": "json",
+            "exec": "ddcutil --bus 5 --noverify --sleep-multiplier=2 getvcp 10 | grep -oP 'current value\\s*=\\s*\\K[0-9]+' | awk '{printf \"{\\\"percentage\\\":%d}\", $1}'",
+            "on-scroll-up": "ddcutil --noverify --bus 5 setvcp 10 + 5",
+            "on-scroll-down": "ddcutil --noverify --bus 5 setvcp 10 - 5",
+            "on-click": "ddcutil --noverify --bus 5 setvcp 10 0",
+            "on-click-right": "ddcutil --noverify --bus 5 setvcp 10 100",
+            "interval": 3,
+            "tooltip": false
+        },
+        "battery": {
+            "states": {
+                "warning": 30,
+                "critical": 15
+            },
+            "format": "{icon} {capacity}%",
+            "format-charging": "󰂄",
+            "format-plugged": "",
+            "format-alt": "{icon} {power}W",
+            "format-icons": [
+                "󰂃",
+                "󰁺",
+                "󰁻",
+                "󰁼",
+                "󰁽",
+                "󰁾",
+                "󰁿",
+                "󰂀",
+                "󰂁",
+                "󰂂",
+                "󰁹"
+            ],
+            "on-click": "systemsettings kcm_energyinfo"
+        },
+        "custom/wallpaper": {
+            "format": "",
+            "on-click": "~/.config/hypr/scripts/set-wallpaper --select-wallpaper",
+            "on-click-right": "~/.config/hypr/scripts/set-wallpaper",
+            "on-click-middle": "~/.config/hypr/scripts/set-wallpaper --select-folder",
+            "tooltip-format": "Select wallpaper"
+        },
+        "custom/notifications": {
+            "exec": "~/.config/waybar/scripts/notifications.sh",
+            "return-type": "json",
+            "on-click": "swaync-client -t",
+            "on-click-right": "swaync-client -C",
+            "interval": 2
+        },
+        "pulseaudio": {
+            // "scroll-step": 1, // %, can be a float
+            "format": "{icon} {volume}%",
+            "format-muted": "",
+            "format-icons": {
+                "default": [
+                    "",
+                    "",
+                    " "
+                ]
+            },
+            "on-click": "~/.config/waybar/scripts/toggle-kmix.sh",
+            "on-click-right": "systemsettings kcm_pulseaudio"
+        },
+        "custom/power": {
+            "format": "⏻",
+            "tooltip-format": "Power menu",
+            "on-click": "~/.config/rofi/scripts/powermenu.sh &",
+            "on-click-right": "systemsettings kcm_kwallet5"
+        }
+    }
+]

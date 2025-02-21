@@ -1,0 +1,98 @@
+#!/bin/bash
+
+# Use XDG directories for better portability
+XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+
+# Path to store the blur state
+BLUR_STATE_FILE="$XDG_CACHE_HOME/hypr/blur_state"
+
+# Ensure the directory exists
+mkdir -p "$(dirname "$BLUR_STATE_FILE")"
+
+# Path to the Rofi theme file
+ROFI_THEME_FILE="$XDG_CONFIG_HOME/rofi/themes/background.rasi"
+
+
+# Function to modify the Rofi background color
+set_rofi_background() {
+    case "$1" in
+        0) BG_COLOR="@background" ;;
+        1|2) BG_COLOR="black/60%" ;;
+    esac
+
+    cat <<EOF > "$ROFI_THEME_FILE"
+window {
+    background-color: $BG_COLOR;
+}
+EOF
+}
+
+# Function to set blur level
+set_blur() {
+    echo "$1" > "$BLUR_STATE_FILE"
+    set_rofi_background "$1"
+    
+    case "$1" in
+        0)
+            hyprctl keyword decoration:blur:passes 0 >/dev/null 2>&1
+            hyprctl keyword decoration:active_opacity 1.0 >/dev/null 2>&1
+            hyprctl keyword decoration:inactive_opacity 1.0 >/dev/null 2>&1
+            ;;
+        1)
+            hyprctl keyword decoration:blur:passes 4 >/dev/null 2>&1
+            hyprctl keyword decoration:active_opacity 0.92 >/dev/null 2>&1
+            hyprctl keyword decoration:inactive_opacity 0.92 >/dev/null 2>&1
+            ;;
+        2)
+            hyprctl keyword decoration:blur:passes 5 >/dev/null 2>&1
+            hyprctl keyword decoration:active_opacity 0.80 >/dev/null 2>&1
+            hyprctl keyword decoration:inactive_opacity 0.80 >/dev/null 2>&1
+            ;;
+    esac
+}
+
+# Function to toggle blur levels
+toggle_blur() {
+    BLUR_STATE=$(cat "$BLUR_STATE_FILE" 2>/dev/null || echo "0")
+
+    case "$BLUR_STATE" in
+        0) set_blur 1 ;;  # No blur → Light blur
+        1) set_blur 2 ;;  # Light blur → Heavy blur
+        2) set_blur 0 ;;  # Heavy blur → No blur
+        *) set_blur 0 ;;  # Fallback case
+    esac
+}
+
+# Handle script arguments
+case "$1" in
+    0|off)
+        set_blur 0
+        ;;
+    1|light)
+        set_blur 1
+        ;;
+    2|heavy)
+        set_blur 2
+        ;;
+    toggle)
+        toggle_blur
+        ;;
+    status)
+        if [[ -f "$BLUR_STATE_FILE" ]]; then
+            case $(cat "$BLUR_STATE_FILE") in
+                0) echo "Blur is OFF." ;;
+                1) echo "Blur is LIGHT." ;;
+                2) echo "Blur is HEAVY." ;;
+                *) set_blur 0; echo "Blur state reset to OFF." ;;
+            esac
+        else
+            set_blur 0
+            echo "Blur state is OFF."
+        fi
+        ;;
+    *)
+        echo "Usage: $0 {0|off|1|light|2|heavy|toggle|status}"
+        exit 1
+        ;;
+esac

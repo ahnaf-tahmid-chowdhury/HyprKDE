@@ -1,0 +1,189 @@
+#!/bin/bash
+
+# Use XDG directories for better portability
+XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+
+# Default wallpaper path
+DEFAULT_WALLPAPER_PATH="/usr/share/wallpapers"
+
+# Function to find wallpapers recursively in a given directory
+find_wallpapers() {
+    find "$1" -type f ! -xtype l \( -iname "*.jpg" -o -iname "*.png" -o -iname "*.jpeg" \)
+}
+
+# Function to prompt for a valid folder
+select_folder() {
+    if command -v kdialog &>/dev/null; then
+        while true; do
+            SELECTED_FOLDER=$(kdialog --getexistingdirectory "Select Wallpaper Folder" 2>/dev/null)
+
+            # Exit if the user cancels
+            [[ -z "$SELECTED_FOLDER" ]] && return 1
+
+            # Check if the folder contains images
+            WALLPAPERS=$(find_wallpapers "$SELECTED_FOLDER")
+            if [[ -n "$WALLPAPERS" ]]; then
+                echo "$SELECTED_FOLDER" > "$XDG_CACHE_HOME/hypr/wallpaper_path"
+                return 0
+            else
+                kdialog --error "Selected folder does not contain any images."
+            fi
+        done
+    else
+        notify-send -u normal -p "Wallpaper" -i dialog-warning "kdialog not found. Please install it or set the folder manually."
+    fi
+}
+
+# Check if cached path exists and contains images
+if [[ -f "$XDG_CACHE_HOME/hypr/wallpaper_path" ]]; then
+    WALLPAPER_PATH=$(cat "$XDG_CACHE_HOME/hypr/wallpaper_path")
+    WALLPAPERS=$(find_wallpapers "$WALLPAPER_PATH")
+fi
+
+# If no cached images found, prompt the user
+if [[ -z "$WALLPAPERS" ]]; then
+    WALLPAPER_PATH="$DEFAULT_WALLPAPER_PATH"
+    WALLPAPERS=$(find_wallpapers "$WALLPAPER_PATH")
+fi
+
+# Final fallback if still no images
+if [[ -z "$WALLPAPERS" ]]; then
+    echo "No wallpapers found. Exiting."
+    exit 1
+fi
+
+# Function to select a wallpaper using rofi
+select_wallpaper() {
+    SELECTED_WALLPAPER=$(for a in $WALLPAPERS; do
+            RELATIVE_PATH="${a#$WALLPAPER_PATH/}"
+            echo -en "$RELATIVE_PATH\0icon\x1f$a\n"
+        done | rofi -dmenu \
+        -mesg "Select Wallpaper" \
+        -theme-str 'mainbox {children: [ "message", "inputbar", "listview"];}' \
+        -theme-str 'textbox {horizontal-align: 0.5; font: "feather 20";}' \
+        -theme-str 'listview {columns: 2; lines: 1;}' \
+        -theme-str 'element {orientation: vertical;}' \
+        -theme-str 'element-icon {size: 10%;}' \
+        -theme-str 'element-text {horizontal-align: 0.5;}' \
+        -theme $XDG_CONFIG_HOME/rofi/themes/menu.rasi)
+
+    if [[ -n "$SELECTED_WALLPAPER" ]]; then
+        set_wallpaper "$WALLPAPER_PATH/$SELECTED_WALLPAPER"
+    else
+        echo "No wallpaper selected. Exiting."
+        exit 1
+    fi
+}
+
+# Function to create symbolic links
+create_symlinks() {
+    echo "Creating symbolic links for theme files..."
+
+    # Define source files
+    CACHE_WAL="$XDG_CACHE_HOME/wal"
+    CONFIG_HYPR="$XDG_CONFIG_HOME/hypr/modules"
+    CONFIG_WAYBAR="$XDG_CONFIG_HOME/waybar"
+    CONFIG_SWAYNC="$XDG_CONFIG_HOME/swaync"
+    CONFIG_ROFI="$XDG_CONFIG_HOME/rofi/themes"
+    DATA_PLASMA="$XDG_DATA_HOME/color-schemes"
+    DATA_KONSOLE="$XDG_DATA_HOME/konsole"
+
+    # Define symlink mappings (source|destination)
+    LINK_FILES=(
+        "$CACHE_WAL/colors-hyprland.conf|$CONFIG_HYPR/colors.conf"
+        "$CACHE_WAL/colors-waybar.css|$CONFIG_WAYBAR/colors.css"
+        "$CACHE_WAL/colors-waybar.css|$CONFIG_SWAYNC/colors.css"
+        "$CACHE_WAL/colors-rofi-dark.rasi|$CONFIG_ROFI/colors.rasi"
+        "$CACHE_WAL/colors-plasma.colors|$DATA_PLASMA/colors-plasma.colors"
+        "$CACHE_WAL/colors-plasma.colors|$DATA_PLASMA/colors-plasma-apply.colors"
+        "$CACHE_WAL/colors-konsole.colorscheme|$DATA_KONSOLE/colors.colorscheme"
+    )
+
+    # Ensure necessary directories exist
+    for dir in "$CONFIG_HYPR" \
+                "$CONFIG_WAYBAR" \
+                "$CONFIG_SWAYNC" \
+                "$CONFIG_ROFI" \
+                "$DATA_PLASMA" \
+                "$DATA_KONSOLE"; do
+        mkdir -p "$dir"
+    done
+
+    # Create symbolic links
+    for file in "${LINK_FILES[@]}"; do
+        IFS='|' read -r src dst <<< "$file"
+        ln -sf "$src" "$dst"
+    done
+}
+
+# Function to set wallpaper and apply pywal
+set_wallpaper() {
+    local WALLPAPER="$1"
+    swww img "$WALLPAPER"
+    wal -i "$WALLPAPER"
+
+    # If --apply-links argument was passed, create symlinks
+    [[ "$APPLY_LINKS" == "yes" ]] && create_symlinks
+
+    # Update swaync colors
+    swaync-client -rs
+
+    # Apply Plasma color scheme
+    plasma-apply-colorscheme "colors-plasma"
+    plasma-apply-colorscheme "colors-plasma-apply"
+
+    # Update GTK colors
+    gsettings set org.gnome.desktop.interface gtk-theme ''
+    gsettings set org.gnome.desktop.interface gtk-theme Breeze
+
+    # Reload Hyprland
+    hyprctl reload
+
+    # Read the blur state
+    BLUR_STATE=$(cat "$XDG_CACHE_HOME/hypr/blur_state" 2>/dev/null)
+
+    # Call the blur control script
+    $XDG_CONFIG_HOME/hypr/scripts/blur-control "${BLUR_STATE:-0}"
+}
+
+# Function to display help message
+show_help() {
+    echo "Usage: $(basename "$0") [OPTIONS]"
+    echo ""
+    echo "Options:"
+    echo "  --select-folder|-sf       Select a folder containing wallpapers"
+    echo "  --select-wallpaper|-sw    Select a wallpaper using rofi"
+    echo "  --apply-links|-l          Apply symbolic links for theme files"
+    echo "  --help|-h                 Show this help message and exit"
+    echo ""
+    exit 0
+}
+
+# Default values
+SELECT_FOLDER="no"
+SELECT_WALLPAPER="no"
+APPLY_LINKS="no"
+
+# Parse arguments
+for arg in "$@"; do
+    case "$arg" in
+        --select-folder|-sf) SELECT_FOLDER="yes" ;;
+        --select-wallpaper|-sw) SELECT_WALLPAPER="yes" ;;
+        --apply-links|-l) APPLY_LINKS="yes" ;;
+        --help|-h) show_help ;;
+        *) echo "Invalid option: $arg"; show_help ;;
+    esac
+done
+
+# If --select-wallpaper argument was passed, select a wallpaper
+if [[ "$SELECT_WALLPAPER" == "yes" ]]; then
+    select_wallpaper
+# If --select-folder argument was passed, select a folder
+elif [[ "$SELECT_FOLDER" == "yes" ]]; then
+    select_folder
+# Otherwise, set a random wallpaper
+else
+    set_wallpaper "$(echo "$WALLPAPERS" | shuf -n 1)"
+fi

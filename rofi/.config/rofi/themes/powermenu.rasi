@@ -1,0 +1,76 @@
+@import "global.rasi"
+
+configuration {
+  show-icons: false;
+}
+
+window {
+  fullscreen: true;
+  transparency: "real";
+  location: center;
+  anchor: center;
+}
+
+mainbox {
+  enabled: true;
+  spacing: 10%;
+  padding: 30% 20%;
+  border-color: @foreground;
+  background-color: transparent;
+  children: [ "message", "listview"];
+}
+
+message {
+  enabled: true;
+  margin: 0 10%;
+  border: 0;
+  padding: 2%;
+  border-radius: 2%;
+  background-color: @active-background;
+  text-color: @normal-foreground;
+}
+
+textbox {
+  background-color: inherit;
+  text-color: white/90%;
+  vertical-align: 0.5;
+  horizontal-align: 0.5;
+  placeholder-color: @foreground;
+  blink: true;
+  markup: true;
+}
+
+listview {
+  columns: 5;
+  lines: 1;
+  cycle: true;
+  dynamic: true;
+  scrollbar: false;
+  layout: vertical;
+  reverse: false;
+  fixed-columns: true;
+  spacing: 2%;
+  border: 0;
+  background-color: transparent;
+  text-color: @foreground;
+  cursor: "default";
+}
+
+element {
+  padding: 5% 3%;
+  border: 3px solid;
+  border-radius: 2%;
+  border-color: @active-background;
+  background-color: @active-background;
+  text-color: white/90%;
+  cursor: pointer;
+}
+
+element-text {
+  font: "feather 40";
+  background-color: transparent;
+  text-color: inherit;
+  cursor: inherit;
+  vertical-align: 0.5;
+  horizontal-align: 0.5;
+}

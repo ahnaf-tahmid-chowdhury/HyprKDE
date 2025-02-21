@@ -1,0 +1,9 @@
+@import "colors.rasi"
+@import "background.rasi"
+
+* {
+    font : "FiraCode Nerd Font Propo Med 12";
+    border: none;
+    padding: none;
+    margin: none;
+}
