@@ -21,7 +21,7 @@ A refined Arch Linux setup combining the flexibility of KDE Plasma with the powe
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/ahnaf-tahmid-chowdhury/dotfiles.git ~/dotfiles
+git clone https://github.com/ahnaf-tahmid-chowdhury/HyprKDE.git ~/dotfiles
 ```
 
 ### 2. Install GNU Stow
