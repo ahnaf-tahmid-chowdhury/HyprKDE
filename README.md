@@ -59,15 +59,17 @@ sudo pacman -S sddm xdg-desktop-portal-gtk xdg-desktop-portal-kde xdg-desktop-po
 sudo pacman -S hyprland hypridle hyprlock
 ```
 
-> **Note**: You'll need to install [hyprland-plugins](https://github.com/hyprwm/hyprland-plugins) and [Hyprspace](https://github.com/KZDKM/Hyprspace) from GitHub.
-
-```bash
-hyprpm update
-hyprpm add https://github.com/hyprwm/hyprland-plugins
-hyprpm add https://github.com/KZDKM/Hyprspace
-hyprpm enable Hyprspace
-hyprpm enable hyprexpo
-```
+> **Note**: On first start, the `hyprpm-setup` script may automatically install required plugins such as [hyprland-plugins](https://github.com/hyprwm/hyprland-plugins) and [Hyprspace](https://github.com/KZDKM/Hyprspace). This may take a little time as Hyprland downloads and enables them in the background.
+>
+> If you prefer to install them manually, you can run:
+>
+> ```bash
+> hyprpm update
+> hyprpm add https://github.com/hyprwm/hyprland-plugins
+> hyprpm add https://github.com/KZDKM/Hyprspace
+> hyprpm enable Hyprspace
+> hyprpm enable hyprexpo
+> ```
 
 ### Status Bar
 
