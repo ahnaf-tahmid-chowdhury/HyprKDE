@@ -1,0 +1,41 @@
+#!/bin/bash
+
+notify() {
+    notify-send -u normal -a "Hyprland Plugin" -i "$1" "$2" "$3"
+}
+
+# Reload or update hyprpm
+if ! hyprpm reload -nn >/dev/null 2>&1; then
+    notify "dialog-error" "hyprpm reload failed" "Attempting plugin update..."
+    if ! hyprpm update; then
+        notify "dialog-error" "hyprpm update failed" "Check your setup manually."
+        exit 1
+    fi
+fi
+
+# Get current plugin list
+PLUGIN_LIST=$(hyprpm list)
+
+# Handle hyprexpo
+if echo "$PLUGIN_LIST" | grep -q 'Plugin hyprexpo'; then
+    hyprpm enable hyprexpo
+else
+    notify "dialog-warning" "hyprexpo not found" "Adding hyprland-plugins repo."
+    yes | hyprpm add https://github.com/hyprwm/hyprland-plugins
+    hyprpm enable hyprexpo 
+    notify "dialog-information" "hyprexpo added" "Attempting plugin update..."
+    hyprpm update
+fi
+
+# Handle Hyprspace
+if echo "$PLUGIN_LIST" | grep -q 'Plugin Hyprspace'; then
+    hyprpm enable Hyprspace
+else
+    notify "dialog-warning" "Hyprspace not found" "Adding Hyprspace repo."
+    yes | hyprpm add https://github.com/KZDKM/Hyprspace
+    hyprpm enable Hyprspace 
+    notify "dialog-information" "Hyprspace added" "Attempting plugin update..."
+    hyprpm update
+fi
+
+
