@@ -38,7 +38,7 @@
             }
         },
         "tray": {
-            "icon-size": 21,
+            "icon-size": 18,
             "spacing": 10
         },
         "custom/cpu": {
@@ -46,20 +46,20 @@
             "return-type": "json",
             "tooltip": true,
             "interval": 3,
-            "on-click": "konsole -e btop"
+            "on-click": "${TERMINAL_CMD} btop"
         },
         "custom/memory": {
             "exec": "~/.config/waybar/scripts/memory-info.sh",
             "return-type": "json",
             "tooltip": true,
             "interval": 3,
-            "on-click": "konsole -e btop"
+            "on-click": "${TERMINAL_CMD} btop"
         },
         "custom/gpu": {
             "exec": "~/.config/waybar/scripts/nvidia-info.sh",
             "return-type": "json",
             "interval": 3,
-            "on-click": "konsole -e nvtop",
+            "on-click": "${TERMINAL_CMD} nvtop",
             "on-click-right": "nvidia-settings"
         },
         "custom/network": {
@@ -67,14 +67,15 @@
             "return-type": "json",
             "tooltip": true,
             "interval": 3,
-            "on-click": "systemsettings kcm_networkmanagement"
+            "on-click": "${TERMINAL_CMD} bmon",
+            "on-click-right": "systemsettings kcm_networkmanagement"
         },
         "custom/menu": {
             "format": "󰣇",
             "escape": true,
             "tooltip-format": "Application launcher",
             "on-click": "~/.config/rofi/scripts/menu.sh",
-            "on-click-right": "systemsettings kcm_about-distro"
+            "on-click-right": "hyprctl dispatch overview:toggle"
         },
         "custom/music": {
             "format": " {}",
@@ -88,8 +89,8 @@
         "clock": {
             "timezone": "Asia/Dhaka",
             "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
-            "format-alt": "\ueab0 {:%d/%m/%Y}",
-            "format": "\uf017 {:%H:%M}",
+            "format-alt": "󰃭 {:%d/%m/%Y}",
+            "format": "󰥔 {:%H:%M}",
             "on-click-right": "systemsettings kcm_clock"
         },
         //ddcutil version
@@ -131,13 +132,13 @@
                 "󰂂",
                 "󰁹"
             ],
-            "on-click": "systemsettings kcm_energyinfo"
+            "on-click": "systemsettings kcm_about-distro"
         },
         "custom/wallpaper": {
             "format": "",
-            "on-click": "~/.config/hypr/scripts/set-wallpaper --select-wallpaper",
-            "on-click-right": "~/.config/hypr/scripts/set-wallpaper",
-            "on-click-middle": "~/.config/hypr/scripts/set-wallpaper --select-folder",
+            "on-click": "~/.config/hypr/scripts/set-wallpaper --select-wallpaper &",
+            "on-click-right": "~/.config/hypr/scripts/set-wallpaper &",
+            "on-click-middle": "~/.config/hypr/scripts/set-wallpaper --select-folder &",
             "tooltip-format": "Select wallpaper"
         },
         "custom/notifications": {
@@ -165,7 +166,7 @@
             "format": "⏻",
             "tooltip-format": "Power menu",
             "on-click": "~/.config/rofi/scripts/powermenu.sh &",
-            "on-click-right": "systemsettings kcm_kwallet5"
+            "on-click-right": "systemsettings kcm_about-distro"
         }
     }
 ]
