@@ -32,7 +32,7 @@ select_folder() {
             fi
         done
     else
-        notify-send -u normal -p "Wallpaper" -i dialog-warning "kdialog not found. Please install it or set the folder manually."
+        notify-send -u normal -i dialog-warning "Wallpaper" "kdialog not found. Please install it or set the folder manually."
     fi
 }
 
@@ -49,10 +49,7 @@ if [[ -z "$WALLPAPERS" ]]; then
 fi
 
 # Final fallback if still no images
-if [[ -z "$WALLPAPERS" ]]; then
-    echo "No wallpapers found. Exiting."
-    exit 1
-fi
+[[ -z "$WALLPAPERS" ]] && echo "No images found in $WALLPAPER_PATH. Exiting." && exit 1
 
 # Function to select a wallpaper using rofi
 select_wallpaper() {
@@ -89,6 +86,7 @@ create_symlinks() {
     CONFIG_ROFI="$XDG_CONFIG_HOME/rofi/themes"
     DATA_PLASMA="$XDG_DATA_HOME/color-schemes"
     DATA_KONSOLE="$XDG_DATA_HOME/konsole"
+    CONFIG_KITTY="$XDG_CONFIG_HOME/kitty"
 
     # Define symlink mappings (source|destination)
     LINK_FILES=(
@@ -98,7 +96,6 @@ create_symlinks() {
         "$CACHE_WAL/colors-rofi-dark.rasi|$CONFIG_ROFI/colors.rasi"
         "$CACHE_WAL/colors-plasma.colors|$DATA_PLASMA/colors-plasma.colors"
         "$CACHE_WAL/colors-plasma.colors|$DATA_PLASMA/colors-plasma-apply.colors"
-        "$CACHE_WAL/colors-konsole.colorscheme|$DATA_KONSOLE/colors.colorscheme"
     )
 
     # Ensure necessary directories exist
@@ -106,10 +103,21 @@ create_symlinks() {
                 "$CONFIG_WAYBAR" \
                 "$CONFIG_SWAYNC" \
                 "$CONFIG_ROFI" \
-                "$DATA_PLASMA" \
-                "$DATA_KONSOLE"; do
+                "$DATA_PLASMA"; do
         mkdir -p "$dir"
     done
+
+    # Add konsole colors if installed
+    if command -v konsole &>/dev/null; then
+        mkdir -p "$DATA_KONSOLE"
+        LINK_FILES+=("$CACHE_WAL/colors-konsole.colorscheme|$DATA_KONSOLE/colors.colorscheme")
+    fi
+
+    # Add kitty colors if installed
+    if command -v kitty &>/dev/null; then
+        mkdir -p "$CONFIG_KITTY"
+        LINK_FILES+=("$CACHE_WAL/colors-kitty.conf|$CONFIG_KITTY/colors.conf")
+    fi
 
     # Create symbolic links
     for file in "${LINK_FILES[@]}"; do
