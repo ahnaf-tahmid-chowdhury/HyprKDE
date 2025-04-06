@@ -142,13 +142,19 @@ sudo pacman -S systemsettings kmix
 ### Screenshot Utilities
 
 ```bash
-sudo pacman -S grim slurp wl-clipboard
+sudo pacman -S grim slurp wl-clipboard tesseract
+```
+
+### Emoji Picker
+
+```bash
+sudo pacman -S plasma-emojier
 ```
 
 ### System Monitor
 
 ```bash
-sudo pacman -S btop nvtop
+sudo pacman -S btop nvtop bmon
 ```
 
 ### Dotfile Management
