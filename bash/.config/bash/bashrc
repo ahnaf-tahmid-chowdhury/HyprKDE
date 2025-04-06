@@ -2,36 +2,30 @@
 # Bash configuration file #
 ###########################
 
-# Please don't edit this file.
-# Use aliases, and env files instead.
-# You can create them in $XDG_CONFIG_HOME/bash/{aliases,env}
-
-# If not running interactively, exit early
+# Exit if not running interactively
 [[ $- != *i* ]] && return
 
 # Set prompt
 PS1='[\u@\h \W]\$ '
 
-# Install and source ble.sh
+# Install and source ble.sh if not installed
 _ble_sh="$XDG_DATA_HOME/blesh/ble.sh"
-function install_ble_sh() {
-    echo "Installing ble.sh..."
-    git clone --recursive --depth 1 --shallow-submodules https://github.com/akinomyoga/ble.sh.git "/tmp/ble.sh"
+if [[ ! -f $_ble_sh ]]; then
+    echo -e "\e[1;34mInstalling ble.sh...\e[0m"
+    git clone --depth 1 --shallow-submodules https://github.com/akinomyoga/ble.sh.git "/tmp/ble.sh"
     make -C "/tmp/ble.sh" install PREFIX="$XDG_DATA_HOME/.."
-}
-
-[[ ! -f $_ble_sh ]] && install_ble_sh
+fi
 source "$_ble_sh"
 
 # Configure ble.sh key bindings
 ble-bind -f up history-search-backward
 ble-bind -f down history-search-forward
 
-# Enable Starship
-if command -v starship &>/dev/null; then
-    eval "$(starship init bash)"
-    bleopt prompt_ps1_final='$(starship module character)'
-fi
+# Enable Starship prompt
+command -v starship &>/dev/null && eval "$(starship init bash)" && bleopt prompt_ps1_final='$(starship module character)'
+
+# Enable zoxide
+command -v zoxide &>/dev/null && eval "$(zoxide init --cmd cd bash)"
 
 # Source additional config files if they exist
 for file in "$XDG_CONFIG_HOME/bash/"{aliases,env}; do
